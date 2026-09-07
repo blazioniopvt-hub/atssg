@@ -5,8 +5,8 @@ import { logger } from 'hono/logger';
 import { rateLimiter } from 'hono-rate-limiter';
 
 // Set test environment variables
-process.env.AUTH_SECRET = process.env.AUTH_SECRET || 'dev-secret-change-in-production-min-32-chars';
-process.env.NODE_ENV = 'test';
+(process.env as any).AUTH_SECRET = process.env.AUTH_SECRET || 'dev-secret-change-in-production-min-32-chars';
+(process.env as any).NODE_ENV = 'test';
 
 import prismaClient from '../lib/prisma';
 import authRoutes from '../auth/routes';

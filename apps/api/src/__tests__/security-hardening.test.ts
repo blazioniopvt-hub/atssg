@@ -152,11 +152,12 @@ describe('Phase 14: Security, Reliability & Production Hardening', () => {
         },
       });
 
-      expect(log.metadata).toBeDefined();
-      expect(log.metadata.password).toBe('[REDACTED]');
-      expect(log.metadata.apiKey).toBe('[REDACTED]');
-      expect(log.metadata.token).toBe('[REDACTED]');
-      expect(log.metadata.username).toBe('sec_student');
+      const metadata = log.metadata as Record<string, any>;
+      expect(metadata).toBeDefined();
+      expect(metadata.password).toBe('[REDACTED]');
+      expect(metadata.apiKey).toBe('[REDACTED]');
+      expect(metadata.token).toBe('[REDACTED]');
+      expect(metadata.username).toBe('sec_student');
     });
 
     it('11. rejects non-admin access to skill alias management', async () => {
@@ -203,7 +204,7 @@ describe('Phase 14: Security, Reliability & Production Hardening', () => {
         headers: { Authorization: `Bearer ${adminToken}` },
       });
       expect(adminRes.status).toBe(200);
-      const data = await adminRes.json();
+      const data: any = await adminRes.json();
       expect(data.success).toBe(true);
       expect(data.data.mandatoryVars).toBeDefined();
     });
