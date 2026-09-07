@@ -23,7 +23,7 @@ export class NextBestActionService {
   async getRecommendedActions(userId: string, targetRoleId?: string): Promise<NextBestActionDTO[]> {
     const targetRoles = await this.targetRoleService.getTargetRoles();
     const role = targetRoleId
-      ? targetRoles.find(r => r.id === targetRoleId || r.slug === targetRoleId) || targetRoles[0]
+      ? targetRoles.find((r: any) => r.id === targetRoleId || r.slug === targetRoleId) || targetRoles[0]
       : targetRoles[0];
 
     const readiness = await this.careerReadinessService.calculateCareerReadiness(userId, role.id);
@@ -76,7 +76,7 @@ export class NextBestActionService {
     // 2. Check for Claimed Skills with Low Confidence -> ASSESS
     for (const us of userSkills) {
       const conf = us.confidence || 50;
-      const matchingReq = reqs.find(r => r.skillId === us.skillId || r.skill.slug === us.skill?.slug);
+      const matchingReq = reqs.find((r: any) => r.skillId === us.skillId || r.skill.slug === us.skill?.slug);
       if (matchingReq && conf < 65) {
         actions.push({
           id: `act_assess_${us.skill?.slug || us.skillId}`,

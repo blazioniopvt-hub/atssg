@@ -89,12 +89,12 @@ export class SkillGraphService {
     ]);
 
     const relationships: SkillRelationshipDTO[] = [
-      ...outgoing.map((r) => ({
+      ...outgoing.map((r: any) => ({
         skill: this.toSkillNode(r.targetSkill),
         type: r.type,
         strength: r.strength,
       })),
-      ...incoming.map((r) => ({
+      ...incoming.map((r: any) => ({
         skill: this.toSkillNode(r.sourceSkill),
         type: r.type,
         strength: r.strength,
@@ -123,8 +123,8 @@ export class SkillGraphService {
     ]);
 
     return this.sortByStrength([
-      ...outgoing.map((r) => ({ skill: this.toSkillNode(r.targetSkill), type: r.type, strength: r.strength })),
-      ...incoming.map((r) => ({ skill: this.toSkillNode(r.sourceSkill), type: r.type, strength: r.strength })),
+      ...outgoing.map((r: any) => ({ skill: this.toSkillNode(r.targetSkill), type: r.type, strength: r.strength })),
+      ...incoming.map((r: any) => ({ skill: this.toSkillNode(r.sourceSkill), type: r.type, strength: r.strength })),
     ]);
   }
 
@@ -138,7 +138,7 @@ export class SkillGraphService {
     });
 
     return this.sortByStrength(
-      relationships.map((r) => ({ skill: this.toSkillNode(r.sourceSkill), type: r.type, strength: r.strength }))
+      relationships.map((r: any) => ({ skill: this.toSkillNode(r.sourceSkill), type: r.type, strength: r.strength }))
     );
   }
 
@@ -152,7 +152,7 @@ export class SkillGraphService {
     });
 
     return this.sortByStrength(
-      relationships.map((r) => ({ skill: this.toSkillNode(r.sourceSkill), type: r.type, strength: r.strength }))
+      relationships.map((r: any) => ({ skill: this.toSkillNode(r.sourceSkill), type: r.type, strength: r.strength }))
     );
   }
 
@@ -166,7 +166,7 @@ export class SkillGraphService {
     });
 
     return this.sortByStrength(
-      relationships.map((r) => ({ skill: this.toSkillNode(r.sourceSkill), type: r.type, strength: r.strength }))
+      relationships.map((r: any) => ({ skill: this.toSkillNode(r.sourceSkill), type: r.type, strength: r.strength }))
     );
   }
 
@@ -186,8 +186,8 @@ export class SkillGraphService {
     ]);
 
     return this.sortByStrength([
-      ...outgoing.map((r) => ({ skill: this.toSkillNode(r.targetSkill), type: r.type, strength: r.strength })),
-      ...incoming.map((r) => ({ skill: this.toSkillNode(r.sourceSkill), type: r.type, strength: r.strength })),
+      ...outgoing.map((r: any) => ({ skill: this.toSkillNode(r.targetSkill), type: r.type, strength: r.strength })),
+      ...incoming.map((r: any) => ({ skill: this.toSkillNode(r.sourceSkill), type: r.type, strength: r.strength })),
     ]);
   }
 
@@ -330,8 +330,8 @@ export class SkillGraphService {
       ]);
 
       const neighbors = [
-        ...outgoing.map((r) => ({ skillId: r.targetSkillId, edge: { source: skillId, target: r.targetSkillId, type: r.type, strength: r.strength } })),
-        ...incoming.map((r) => ({ skillId: r.sourceSkillId, edge: { source: r.sourceSkillId, target: skillId, type: r.type, strength: r.strength } })),
+        ...outgoing.map((r: any) => ({ skillId: r.targetSkillId, edge: { source: skillId, target: r.targetSkillId, type: r.type, strength: r.strength } })),
+        ...incoming.map((r: any) => ({ skillId: r.sourceSkillId, edge: { source: r.sourceSkillId, target: skillId, type: r.type, strength: r.strength } })),
       ];
 
       for (const neighbor of neighbors) {

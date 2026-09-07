@@ -5,6 +5,7 @@ import { setCookie, deleteCookie } from 'hono/cookie';
 import { registerSchema, loginSchema, type RegisterInput, type LoginInput } from './validation';
 import { hashPassword, verifyPassword, createSessionToken, getSessionCookieOptions, getAuthSecret, generateSessionToken, SESSION_COOKIE_NAME } from './utils';
 import prismaClient from '../lib/prisma';
+import { Prisma } from '@prisma/client';
 import { authMiddleware, type AuthVariables } from '../middleware/auth';
 
 const auth = new Hono<{ Variables: AuthVariables }>();
@@ -52,7 +53,7 @@ auth.post('/register', zValidator('json', registerSchema), async (c) => {
   const displayName = body.displayName || body.username || body.email.split('@')[0];
 
   try {
-    user = await prismaClient.$transaction(async (tx) => {
+    user = await prismaClient.$transaction(async (tx: Prisma.TransactionClient) => {
       const newUser = await tx.user.create({
         data: {
           email: body.email,

@@ -274,7 +274,7 @@ export class TargetRoleService {
     }
 
     // Process all requirements deterministically
-    const requirementGaps: TargetRoleSkillGapItem[] = role.skillRequirements.map((req) => {
+    const requirementGaps: TargetRoleSkillGapItem[] = role.skillRequirements.map((req: any) => {
       const userSkill =
         skillById.get(req.skillId) ||
         (req.skill?.slug ? skillBySlug.get(req.skill.slug.toLowerCase()) : undefined) ||

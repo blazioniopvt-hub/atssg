@@ -33,8 +33,10 @@ export class PersonalizedLearningPathService {
    */
   async getOrCreateUserLearningPath(userId: string, targetRoleId?: string): Promise<LearningPathDTO> {
     // 1. Resolve target role ID
-    let roleId = targetRoleId;
-    if (!roleId) {
+    let roleId: string;
+    if (targetRoleId) {
+      roleId = targetRoleId;
+    } else {
       const userRole = await targetRoleService.getUserTargetRole(userId);
       roleId = userRole ? userRole.id : 'role_ai_ml';
     }
@@ -77,7 +79,7 @@ export class PersonalizedLearningPathService {
   async generatePath(userId: string, targetRoleId: string): Promise<LearningPathDTO> {
     // A. Fetch target role and requirements
     const roleDetails = await targetRoleService.getTargetRoleById(targetRoleId);
-    const targetRole = roleDetails || FALLBACK_TARGET_ROLES.find(r => r.id === targetRoleId || r.slug === targetRoleId) || FALLBACK_TARGET_ROLES[1];
+    const targetRole = roleDetails || FALLBACK_TARGET_ROLES.find((r: any) => r.id === targetRoleId || r.slug === targetRoleId) || FALLBACK_TARGET_ROLES[1];
 
     // B. Fetch user skills and Phase 4 confidence ratings
     const userSkillsMap = new Map<string, { proficiency: string; confidence: number; verificationStatus: string }>();

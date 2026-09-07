@@ -25,7 +25,7 @@ export class CareerReadinessService {
   ): Promise<CareerReadinessDTO> {
     const targetRoles = await this.targetRoleService.getTargetRoles();
     const role = targetRoleId
-      ? targetRoles.find(r => r.id === targetRoleId || r.slug === targetRoleId) || targetRoles[0]
+      ? targetRoles.find((r: any) => r.id === targetRoleId || r.slug === targetRoleId) || targetRoles[0]
       : targetRoles[0];
 
     // 1. Fetch user skills & evidence
@@ -124,17 +124,17 @@ export class CareerReadinessService {
     // Dimension 5: Learning Completion (0 - 100)
     // Measures progress on structured milestone roadmap
     let learningProgressScore = 65;
-    const matchingPath = learningPaths.find(lp => lp.targetRoleId === role.id);
+    const matchingPath = learningPaths.find((lp: any) => lp.targetRoleId === role.id);
     if (matchingPath) {
       learningProgressScore = Math.round(matchingPath.progress || 0);
     }
 
     // Dimension 6: Role Alignment (0 - 100)
     // Measures mandatory vs optional coverage
-    const mandatoryReqs = reqs.filter(r => r.isRequired);
+    const mandatoryReqs = reqs.filter((r: any) => r.isRequired);
     let mandatoryMatched = 0;
     for (const mReq of mandatoryReqs) {
-      const userSkill = userSkills.find(us => us.skillId === mReq.skillId || us.skill?.slug === mReq.skill.slug);
+      const userSkill = userSkills.find((us: any) => us.skillId === mReq.skillId || us.skill?.slug === mReq.skill.slug);
       if (userSkill) mandatoryMatched++;
     }
     const roleAlignmentScore = mandatoryReqs.length > 0

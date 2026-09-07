@@ -545,15 +545,15 @@ export class WorkSampleEvaluationService {
       });
 
       if (projects && projects.length > 0) {
-        return projects.map(p => this.mapToProjectDTO(p, p.evaluation));
+        return projects.map((p: any) => this.mapToProjectDTO(p, p.evaluation));
       }
     } catch {
       // Use in-memory
     }
 
-    const memList = Array.from(inMemoryProjects.values()).filter(p => p.ownerId === userId);
+    const memList = Array.from(inMemoryProjects.values()).filter((p: any) => p.ownerId === userId);
     if (memList.length > 0) {
-      return memList.map(p => this.mapToProjectDTO(p, inMemoryEvaluations.get(p.id)));
+      return memList.map((p: any) => this.mapToProjectDTO(p, inMemoryEvaluations.get(p.id)));
     }
 
     // Default investor-ready seed project for demo user

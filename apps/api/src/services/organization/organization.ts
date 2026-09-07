@@ -162,7 +162,7 @@ export class OrganizationService {
         },
       });
 
-      return memberships.map(m => ({
+      return memberships.map((m: any) => ({
         ...m.organization,
         role: m.role,
         joinedAt: m.joinedAt,
@@ -401,7 +401,7 @@ export class OrganizationService {
         },
       });
 
-      return members.map(m => ({
+      return members.map((m: any) => ({
         id: m.id,
         userId: m.userId,
         organizationId: m.organizationId,
@@ -493,13 +493,13 @@ export class OrganizationService {
           },
         },
       });
-      return depts.map(d => ({
+      return depts.map((d: any) => ({
         ...d,
         programsCount: d._count.programs,
         membersCount: d._count.members,
       }));
     } catch {
-      return Array.from(inMemoryDepartments.values()).filter(d => d.organizationId === organizationId);
+      return Array.from(inMemoryDepartments.values()).filter((d: any) => d.organizationId === organizationId);
     }
   }
 
@@ -567,13 +567,13 @@ export class OrganizationService {
           _count: { select: { members: true } },
         },
       });
-      return cohorts.map(c => ({
+      return cohorts.map((c: any) => ({
         ...c,
         programName: c.program?.name,
         membersCount: c._count.members,
       }));
     } catch {
-      return Array.from(inMemoryCohorts.values()).filter(c => c.organizationId === organizationId);
+      return Array.from(inMemoryCohorts.values()).filter((c: any) => c.organizationId === organizationId);
     }
   }
 }

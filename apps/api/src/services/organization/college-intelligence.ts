@@ -99,7 +99,7 @@ export class CollegeIntelligenceService {
 
       for (const m of members) {
         const u = m.user;
-        const studentEvidence = u.skills.reduce((acc, s) => acc + (s.evidence?.length || 0), 0);
+        const studentEvidence = u.skills.reduce((acc: number, s: any) => acc + (s.evidence?.length || 0), 0);
         totalEvidence += studentEvidence;
 
         if (u.skills.length > 0 || studentEvidence > 0 || u.assessments.length > 0) {
@@ -115,7 +115,7 @@ export class CollegeIntelligenceService {
 
         // Deterministic readiness approximation using Phase 8 service
         const studentScore = u.skills.length > 0
-          ? Math.min(100, Math.round((u.skills.reduce((acc, s) => acc + (s.confidence || 40), 0) / u.skills.length)))
+          ? Math.min(100, Math.round((u.skills.reduce((acc: number, s: any) => acc + (s.confidence || 40), 0) / u.skills.length)))
           : 35;
 
         totalReadiness += studentScore;

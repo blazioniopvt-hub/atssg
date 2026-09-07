@@ -254,7 +254,7 @@ export class ResourceDiscoveryService {
         orderBy: { qualityScore: 'desc' },
       });
 
-      return dbResources.map((r) => ({
+      return dbResources.map((r: any) => ({
         id: r.id,
         title: r.title,
         description: r.description || '',

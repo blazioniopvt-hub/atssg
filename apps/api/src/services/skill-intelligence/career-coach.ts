@@ -35,7 +35,7 @@ export class CareerCoachService {
   ): Promise<CareerCoachSessionDTO> {
     const targetRoles = await this.targetRoleService.getTargetRoles();
     const role = targetRoleId
-      ? targetRoles.find(r => r.id === targetRoleId || r.slug === targetRoleId) || targetRoles[0]
+      ? targetRoles.find((r: any) => r.id === targetRoleId || r.slug === targetRoleId) || targetRoles[0]
       : targetRoles[0];
 
     const sessionId = `coach_sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -128,7 +128,7 @@ export class CareerCoachService {
       });
 
       if (sessions && sessions.length > 0) {
-        return sessions.map(s => this.mapToSessionDTO({
+        return sessions.map((s: any) => this.mapToSessionDTO({
           ...s,
           targetRoleTitle: s.targetRole?.title || 'Target Role',
         }));
@@ -137,8 +137,8 @@ export class CareerCoachService {
       // Memory fallback
     }
 
-    const memList = Array.from(inMemoryCoachSessions.values()).filter(s => s.userId === userId);
-    return memList.map(s => this.mapToSessionDTO(s));
+    const memList = Array.from(inMemoryCoachSessions.values()).filter((s: any) => s.userId === userId);
+    return memList.map((s: any) => this.mapToSessionDTO(s));
   }
 
   /**

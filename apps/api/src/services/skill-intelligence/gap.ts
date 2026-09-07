@@ -102,11 +102,11 @@ export class SkillGapService {
     });
 
     const userSkillMap = new Map<string, { skillId: string; proficiencyLevel: ProficiencyLevel; confidence: number | null }>(
-      userSkills.map((us) => [us.skillId, { skillId: us.skillId, proficiencyLevel: us.proficiencyLevel, confidence: us.confidence }])
+      userSkills.map((us: any) => [us.skillId, { skillId: us.skillId, proficiencyLevel: us.proficiencyLevel, confidence: us.confidence }])
     );
 
     // Analyze each prerequisite
-    const gapItems: GapItem[] = allPrerequisites.map((p) => {
+    const gapItems: GapItem[] = allPrerequisites.map((p: any) => {
       const userSkill = userSkillMap.get(p.skill.id);
       const requiredMinProficiency = getMinProficiencyForStrength(p.strength);
       

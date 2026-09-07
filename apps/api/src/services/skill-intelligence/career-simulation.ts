@@ -242,7 +242,7 @@ export class CareerSimulationService {
   ): Promise<CareerSimulationDTO> {
     const targetRoles = await this.targetRoleService.getTargetRoles();
     const role = targetRoleId
-      ? targetRoles.find(r => r.id === targetRoleId || r.slug === targetRoleId) || targetRoles[0]
+      ? targetRoles.find((r: any) => r.id === targetRoleId || r.slug === targetRoleId) || targetRoles[0]
       : targetRoles[0];
 
     const slug = role.slug;
@@ -535,14 +535,14 @@ export class CareerSimulationService {
         orderBy: { createdAt: 'desc' },
       });
       if (simulations && simulations.length > 0) {
-        return simulations.map(s => this.mapToDTO(s));
+        return simulations.map((s: any) => this.mapToDTO(s));
       }
     } catch {
       // Memory fallback
     }
 
-    const list = Array.from(inMemorySimulations.values()).filter(s => s.userId === userId);
-    return list.map(s => this.mapToDTO(s));
+    const list = Array.from(inMemorySimulations.values()).filter((s: any) => s.userId === userId);
+    return list.map((s: any) => this.mapToDTO(s));
   }
 
   private async getSimulationInternal(userId: string, simulationId: string): Promise<any> {

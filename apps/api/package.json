@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "prebuild": "prisma generate --schema=../../database/prisma/schema.prisma",
+    "build": "prisma generate --schema=../../database/prisma/schema.prisma && tsc",
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts",
     "test": "jest \"src/__tests__/(critical-path|role-gap|resume-intelligence|evidence-confidence|learning-intelligence|project-intelligence|career-readiness-simulation|career-coach|organization-intelligence|opportunity-placement|observability-audit|integrations-webhooks|security-hardening|entitlements-production).test.ts\" --passWithNoTests --forceExit",

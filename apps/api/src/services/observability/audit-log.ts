@@ -135,7 +135,7 @@ export class AuditLogService {
       ]);
 
       return {
-        logs: records.map(r => ({
+        logs: records.map((r: any) => ({
           id: r.id,
           actorId: r.actorId,
           actorEmail: r.actor?.email,

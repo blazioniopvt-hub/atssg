@@ -131,7 +131,7 @@ export class ApplicationService {
         orderBy: { appliedAt: 'desc' },
       });
 
-      return apps.map(a => ({
+      return apps.map((a: any) => ({
         id: a.id,
         userId: a.userId,
         opportunityId: a.opportunityId,
@@ -147,7 +147,7 @@ export class ApplicationService {
         reviewedBy: a.reviewedBy,
       }));
     } catch {
-      return Array.from(inMemoryApplications.values()).filter(a => a.userId === userId);
+      return Array.from(inMemoryApplications.values()).filter((a: any) => a.userId === userId);
     }
   }
 
@@ -172,7 +172,7 @@ export class ApplicationService {
         orderBy: { matchScore: 'desc' },
       });
 
-      return apps.map(a => ({
+      return apps.map((a: any) => ({
         candidateId: a.userId,
         name: a.user?.profile ? `${a.user.profile.firstName || ''} ${a.user.profile.lastName || ''}`.trim() || a.user.username || 'Candidate' : 'Candidate',
         email: a.user?.email || 'candidate@skillsync.io',

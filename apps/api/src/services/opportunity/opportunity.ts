@@ -87,7 +87,7 @@ export class OpportunityService {
         salaryMax: opp.salaryMax,
         currency: opp.currency,
         applicationDeadline: opp.applicationDeadline,
-        skills: opp.skills.map(s => ({
+        skills: opp.skills.map((s: any) => ({
           id: s.id,
           skillId: s.skillId,
           skillName: s.skill.name,

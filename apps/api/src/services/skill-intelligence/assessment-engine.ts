@@ -1128,7 +1128,7 @@ export class AssessmentEngineService {
           submittedAt: dba.submittedAt,
           createdAt: dba.createdAt,
           updatedAt: dba.updatedAt,
-          attempts: dba.attempts.map((a) => ({
+          attempts: dba.attempts.map((a: any) => ({
             id: a.id,
             assessmentId: a.assessmentId,
             attemptNumber: a.attemptNumber,

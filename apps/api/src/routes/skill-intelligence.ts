@@ -6,7 +6,7 @@ import { authMiddleware, type AuthVariables } from '../middleware/auth';
 import { evidenceService } from '../services/skill-intelligence/evidence';
 import { intelligenceService } from '../services/skill-intelligence/intelligence';
 import { skillConfidenceService } from '../services/skill-intelligence/skill-confidence';
-import { EvidenceType } from '@prisma/client';
+import { EvidenceType, Prisma } from '@prisma/client';
 import prismaClient from '../lib/prisma';
 
 const skillIntelligence = new Hono<{ Variables: AuthVariables }>();
@@ -93,7 +93,7 @@ skillIntelligence.post('/skills', zValidator('json', addSkillSchema), async (c) 
   const body = c.req.valid('json');
 
   try {
-    const userSkill = await prismaClient.$transaction(async (tx) => {
+    const userSkill = await prismaClient.$transaction(async (tx: Prisma.TransactionClient) => {
       const existing = await tx.userSkill.findUnique({
         where: {
           userId_skillId: {

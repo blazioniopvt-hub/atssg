@@ -6,6 +6,7 @@ import { authMiddleware, type AuthVariables } from '../../middleware/auth';
 import { resumeAnalysisService } from '../../services/resume/analysis';
 import { createStorageProviderFromEnv } from '../../services/storage';
 import prismaClient from '../../lib/prisma';
+import { Prisma } from '@prisma/client';
 import uploadRoutes from './upload';
 
 import { canonicalizeSkillName } from '../../services/ai/extraction';
@@ -262,7 +263,7 @@ resumeRoutes.post(
     let addedProjectsCount = 0;
 
     try {
-      await prismaClient.$transaction(async (tx) => {
+      await prismaClient.$transaction(async (tx: Prisma.TransactionClient) => {
         // 1. Persist accepted skills with non-downgrade rule & traceable evidence
         for (const rawSkillIdOrName of acceptedSkillsList) {
           const canonicalName = canonicalizeSkillName(rawSkillIdOrName);
