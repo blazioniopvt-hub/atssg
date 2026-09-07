@@ -1,0 +1,29 @@
+{
+  "name": "@skillsync/config",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./index.js",
+  "files": [
+    "eslint",
+    "prettier",
+    "tailwind",
+    "typescript"
+  ],
+  "scripts": {
+    "lint": "echo 'Config package - no lint needed'",
+    "test": "echo 'Config package - no tests needed'"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.5",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-react": "^7.33.0",
+    "eslint-plugin-react-hooks": "^4.6.0"
+  }
+}

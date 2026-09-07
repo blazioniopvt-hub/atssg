@@ -1,0 +1,1541 @@
+// SkillSync Database Schema
+// Phase 2: Production Database Architecture
+// Phase 7: Resume/CV Intelligence
+// Phase 9: Multi-Tenancy + RBAC Foundation
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum ProfileVisibility {
+  PUBLIC
+  PRIVATE
+  CONNECTIONS_ONLY
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  FACULTY
+  PLACEMENT_OFFICER
+  STUDENT
+  RECRUITER
+  ALUMNI
+}
+
+enum OrgUserRole {
+  ORG_ADMIN
+  MEMBER
+  VIEWER
+  OWNER
+  ADMIN
+  CAREER_ADMIN
+  FACULTY
+  MENTOR
+  RECRUITER
+  CANDIDATE
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum PlanCode {
+  FREE
+  PRO
+  ORGANIZATION
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+}
+
+enum ProficiencyLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum SkillCategory {
+  PROGRAMMING
+  DATA_SCIENCE
+  DESIGN
+  MARKETING
+  PRODUCT
+  MANAGEMENT
+  SALES
+  OPERATIONS
+  FINANCE
+  HR
+  LEGAL
+  OTHER
+}
+
+enum DemandLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
+  ARCHIVED
+  CANCELLED
+}
+
+enum ProjectVisibility {
+  PUBLIC
+  PRIVATE
+  TEAM
+  ORGANIZATION
+}
+
+enum OrganizationType {
+  COMPANY
+  EDUCATIONAL
+  NON_PROFIT
+  GOVERNMENT
+  COMMUNITY
+  OTHER
+}
+
+enum OrganizationStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_VERIFICATION
+}
+
+enum OpportunityType {
+  JOB
+  INTERNSHIP
+  FREELANCE
+  PROJECT
+  COMPETITION
+  LEARNING
+  OTHER
+}
+
+enum OpportunityStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  FILLED
+  CANCELLED
+  EXPIRED
+}
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum ProjectRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum OrganizationSize {
+  STARTUP
+  SMALL
+  MEDIUM
+  LARGE
+  ENTERPRISE
+}
+
+enum VerificationMethod {
+  SELF_REPORTED
+  PEER_ENDORSED
+  CERTIFICATION
+  PROJECT_DEMONSTRATED
+  ASSESSMENT_PASSED
+  EMPLOYER_VERIFIED
+}
+
+enum EvidenceType {
+  PROJECT
+  CERTIFICATE
+  PORTFOLIO_ITEM
+  WORK_EXPERIENCE
+  ASSESSMENT_RESULT
+  WORK_SAMPLE
+  SIMULATION_PERFORMANCE
+  SELF_REPORTED
+  OTHER
+}
+
+enum SkillRelationshipType {
+  PREREQUISITE
+  RELATED
+  SUBSKILL
+  SPECIALIZATION
+  COMPLEMENTARY
+}
+
+enum AIExtractionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum AIProviderType {
+  OPENAI
+  ANTHROPIC
+  LOCAL
+  CUSTOM
+}
+
+enum ResumeStatus {
+  UPLOADED
+  PROCESSING
+  READY
+  FAILED
+  DELETED
+}
+
+enum ResumeAnalysisStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ResumeFileType {
+  PDF
+  DOCX
+  TXT
+}
+
+enum LearningResourceType {
+  COURSE
+  BOOK
+  VIDEO
+  DOCUMENTATION
+  ARTICLE
+  PROJECT
+  TUTORIAL
+}
+
+enum ResourceDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum LearningPlanStatus {
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+  PAUSED
+}
+
+enum LearningPathStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum LearningPathItemStatus {
+  LOCKED
+  AVAILABLE
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+enum DuplicateDetectionStatus {
+  NONE
+  POSSIBLE_DUPLICATE
+  CONFIRMED_DUPLICATE
+}
+
+enum ApplicationStatus {
+  DISCOVERED
+  SAVED
+  READY_TO_APPLY
+  APPLIED
+  SCREENING
+  INTERVIEW
+  OFFER
+  HIRED
+  REJECTED
+  WITHDRAWN
+}
+
+// Phase 6: Assessment Engine
+enum AssessmentType {
+  QUIZ
+  PRACTICAL
+  PEER_REVIEW
+  SELF_CHECK
+}
+
+enum AssessmentStatus {
+  CREATED
+  IN_PROGRESS
+  SUBMITTED
+  GRADED
+  EXPIRED
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+  CODE_REVIEW
+}
+
+// Phase 7: Work-Sample & Project Intelligence
+enum ProjectSource {
+  MANUAL
+  RESUME
+  GITHUB
+  PORTFOLIO
+  DOCUMENT
+  WORK_SAMPLE
+}
+
+// Phase 8: Career Readiness & Simulation
+enum SimulationStatus {
+  CREATED
+  IN_PROGRESS
+  SUBMITTED
+  COMPLETED
+  EXPIRED
+}
+
+enum ReadinessLevel {
+  NOT_READY
+  EARLY_STAGE
+  DEVELOPING
+  ROLE_READY
+  STRONG_MATCH
+}
+
+// Phase 9: AI Career Coach & Next-Best-Action
+enum CoachActionType {
+  LEARN
+  ASSESS
+  BUILD_PROJECT
+  IMPROVE_PROJECT
+  VERIFY_SKILL
+  COMPLETE_PREREQUISITE
+  UPDATE_RESUME
+  TAKE_SIMULATION
+}
+
+enum CoachSender {
+  USER
+  COACH
+  SYSTEM
+}
+
+// ============================================================
+// MULTI-TENANCY CORE MODELS
+// ============================================================
+
+model Organization {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  description     String?
+  logoUrl         String?
+  websiteUrl      String?
+  type            OrganizationType @default(COMPANY)
+  status          OrganizationStatus @default(ACTIVE)
+  size            OrganizationSize?
+  industry        String?
+  headquarters    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  members            UserOrganization[]
+  teams              Team[]
+  opportunities      Opportunity[]
+  skills             Skill[]
+  projects           Project[]
+  learningResources  LearningResource[]
+  defaultUsers       User[]    @relation("DefaultOrg")
+  resumes            Resume[]  @relation("OrganizationResumes")
+  invitations        OrganizationInvitation[]
+  departments        OrganizationDepartment[]
+  programs           OrganizationProgram[]
+  cohorts            OrganizationCohort[]
+  settings           OrganizationSettings?
+  auditLogs          AuditLog[]
+  integrationConnections IntegrationConnection[]
+  subscriptions      Subscription[]
+  usageRecords       UsageRecord[]
+
+  @@index([slug])
+  @@index([type])
+  @@index([status])
+  @@map("organizations")
+}
+
+model UserOrganization {
+  id             String       @id @default(cuid())
+  userId         String
+  organizationId String
+  role           OrgUserRole  @default(MEMBER)
+  departmentId   String?
+  programId      String?
+  cohortId       String?
+  joinedAt       DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  department     OrganizationDepartment? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  program        OrganizationProgram?    @relation(fields: [programId], references: [id], onDelete: SetNull)
+  cohort         OrganizationCohort?     @relation(fields: [cohortId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, organizationId])
+  @@index([userId])
+  @@index([organizationId])
+  @@index([departmentId])
+  @@index([programId])
+  @@index([cohortId])
+  @@map("user_organizations")
+}
+
+// ============================================================
+// USER & AUTH
+// ============================================================
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  username      String?       @unique
+  passwordHash  String?
+  role          UserRole      @default(STUDENT)
+  status        UserStatus    @default(PENDING_VERIFICATION)
+  lastLoginAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+
+  // Tenant association
+  organizations UserOrganization[]
+  // Default organization for single-org context
+  defaultOrgId  String?
+  defaultOrg    Organization? @relation("DefaultOrg", fields: [defaultOrgId], references: [id], onDelete: SetNull)
+
+  profile       Profile?
+  skills        UserSkill[]
+  projects      Project[]       @relation("ProjectOwner")
+  teams         Team[]          @relation("TeamOwner")
+  memberships   TeamMember[]
+  projectMembers ProjectMember[]
+  sessions      Session[]
+  aiExtractionJobs AIExtractionJob[]
+  resumes       Resume[]
+  learningPlans LearningPlan[]
+  learningPaths LearningPath[] @relation("UserLearningPaths")
+  applications  Application[]
+  assessments   Assessment[]   @relation("UserAssessments")
+  simulations   CareerSimulation[] @relation("UserSimulations")
+  coachSessions CareerCoachSession[] @relation("UserCoachSessions")
+  auditLogs              AuditLog[]
+  integrationConnections IntegrationConnection[]
+  subscriptions          Subscription[]
+  usageRecords           UsageRecord[]
+
+  @@index([email])
+  @@index([username])
+  @@index([status])
+  @@index([defaultOrgId])
+  @@map("users")
+}
+
+model Profile {
+  id              String           @id @default(cuid())
+  userId          String           @unique
+  firstName       String?
+  lastName        String?
+  displayName     String?
+  bio             String?
+  headline        String?
+  location        String?
+  profileImageUrl String?
+  websiteUrl      String?
+  targetRoleId    String?
+  visibility      ProfileVisibility @default(PUBLIC)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetRole      TargetRole?      @relation(fields: [targetRoleId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([targetRoleId])
+  @@map("profiles")
+}
+
+// ============================================================
+// SKILL TAXONOMY (tenant-scoped)
+// ============================================================
+
+model SkillAlias {
+  id              String   @id @default(cuid())
+  skillId         String
+  alias           String
+  normalizedAlias String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  skill           Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([skillId, normalizedAlias])
+  @@index([normalizedAlias])
+  @@map("skill_aliases")
+}
+
+model Skill {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String
+  description String?
+  category    SkillCategory
+  subcategory String?
+  iconUrl     String?
+  isVerified  Boolean       @default(false)
+  demandLevel DemandLevel   @default(MEDIUM)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+
+  // Tenant scoping
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  userSkills              UserSkill[]
+  projectSkills           ProjectSkill[]
+  opportunitySkills       OpportunitySkill[]
+  evidence                SkillEvidence[]
+  skillRelationshipsSource SkillRelationship[] @relation("SkillRelationshipsSource")
+  skillRelationshipsTarget SkillRelationship[] @relation("SkillRelationshipsTarget")
+  aliases                 SkillAlias[]
+  learningResources       LearningResource[]
+  learningPlans           LearningPlan[]       @relation("LearningPlanTargetSkill")
+  learningMilestones      LearningMilestone[]  @relation("LearningMilestoneSkill")
+  learningPathItems       LearningPathItem[]   @relation("PathItemSkill")
+  assessments             Assessment[]         @relation("SkillAssessments")
+  roleRequirements        RoleSkillRequirement[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@index([slug])
+  @@index([category])
+  @@map("skills")
+}
+
+// ============================================================
+// USER SKILLS & EVIDENCE
+// ============================================================
+
+model UserSkill {
+  id                String            @id @default(cuid())
+  userId            String
+  skillId           String
+  proficiencyLevel  ProficiencyLevel  @default(BEGINNER)
+  yearsOfExperience Float?
+  confidence        Int?              @default(50)
+  verificationStatus VerificationStatus @default(UNVERIFIED)
+  verificationMethod VerificationMethod?
+  verifiedAt        DateTime?
+  verifiedBy        String?
+  lastUsedAt        DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill             Skill             @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  evidence          SkillEvidence[]
+
+  @@unique([userId, skillId])
+  @@index([userId])
+  @@index([skillId])
+  @@index([proficiencyLevel])
+  @@index([verificationStatus])
+  @@map("user_skills")
+}
+
+model SkillEvidence {
+  id              String       @id @default(cuid())
+  userSkillId     String
+  skillId         String?
+  type            EvidenceType
+  title           String
+  description     String?
+  url             String?
+  metadata        Json?
+  verifiedAt      DateTime?
+  verifiedBy      String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  userSkill       UserSkill    @relation(fields: [userSkillId], references: [id], onDelete: Cascade)
+  skill           Skill?       @relation(fields: [skillId], references: [id], onDelete: SetNull)
+
+  @@index([userSkillId])
+  @@index([skillId])
+  @@index([type])
+  @@map("skill_evidence")
+}
+
+// ============================================================
+// SKILL RELATIONSHIPS (GRAPH)
+// ============================================================
+
+model SkillRelationship {
+  id                String                 @id @default(cuid())
+  sourceSkillId     String
+  targetSkillId     String
+  type              SkillRelationshipType
+  strength          Float                  @default(1.0)
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  sourceSkill       Skill                  @relation("SkillRelationshipsSource", fields: [sourceSkillId], references: [id], onDelete: Cascade)
+  targetSkill       Skill                  @relation("SkillRelationshipsTarget", fields: [targetSkillId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceSkillId, targetSkillId, type])
+  @@index([sourceSkillId])
+  @@index([targetSkillId])
+  @@index([type])
+  @@map("skill_relationships")
+}
+
+// ============================================================
+// AI EXTRACTION
+// ============================================================
+
+model AIExtractionJob {
+  id              String             @id @default(cuid())
+  userId          String
+  inputText       String
+  inputTextHash   String
+  status          AIExtractionStatus @default(PENDING)
+  providerType    AIProviderType?
+  model           String?
+  inputTokens     Int?
+  outputTokens    Int?
+  latencyMs       Int?
+  errorMessage    String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  completedAt     DateTime?
+
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  results         AIExtractionResult[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([inputTextHash])
+  @@map("ai_extraction_jobs")
+}
+
+model AIExtractionResult {
+  id                 String   @id @default(cuid())
+  jobId              String
+  skillName          String
+  skillSlug          String?
+  matchedSkillId     String?
+  isMatched          Boolean  @default(false)
+  confidence         Float
+  evidenceSnippet    String?
+  reasoning          String?
+  createdAt          DateTime @default(now())
+
+  job                AIExtractionJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([skillName])
+  @@index([matchedSkillId])
+  @@map("ai_extraction_results")
+}
+
+// ============================================================
+// PROJECTS & TEAMS
+// ============================================================
+
+model Project {
+  id              String            @id @default(cuid())
+  ownerId         String
+  title           String
+  slug            String
+  description     String
+  longDescription String?
+  source          ProjectSource     @default(MANUAL)
+  status          ProjectStatus     @default(PLANNING)
+  visibility      ProjectVisibility @default(PUBLIC)
+  repositoryUrl   String?
+  liveUrl         String?
+  documentationUrl String?
+  thumbnailUrl    String?
+  roleAlignment   Float?
+  tags            Json?
+  startDate       DateTime?
+  endDate         DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+
+  // Tenant scoping
+  organizationId  String?
+  organization    Organization?     @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  owner           User              @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members         ProjectMember[]
+  skills          ProjectSkill[]
+  evaluation      ProjectEvaluation?
+
+  @@unique([ownerId, slug])
+  @@index([ownerId])
+  @@index([organizationId])
+  @@index([slug])
+  @@index([status])
+  @@index([source])
+  @@index([visibility])
+  @@map("projects")
+}
+
+model ProjectEvaluation {
+  id                  String   @id @default(cuid())
+  projectId           String   @unique
+  technicalDepth      Int      @default(0) // 0-100
+  architecture        Int      @default(0) // 0-100
+  testing             Int      @default(0) // 0-100
+  documentation       Int      @default(0) // 0-100
+  deployment          Int      @default(0) // 0-100
+  overallQuality      Int      @default(0) // 0-100
+  detectedSkills      Json     // Array of detected skills with evidence & confidence contribution
+  summary             String?
+  strengths           Json?    // String array
+  improvementAreas    Json?    // String array
+  evaluatedAt         DateTime @default(now())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  project             Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([overallQuality])
+  @@map("project_evaluations")
+}
+
+model ProjectSkill {
+  id        String   @id @default(cuid())
+  projectId String
+  skillId   String
+  createdAt DateTime @default(now())
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skill     Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, skillId])
+  @@index([projectId])
+  @@index([skillId])
+  @@map("project_skills")
+}
+
+model ProjectMember {
+  id        String        @id @default(cuid())
+  userId    String
+  projectId String
+  role      ProjectRole   @default(MEMBER)
+  joinedAt  DateTime      @default(now())
+
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+  @@index([userId])
+  @@index([projectId])
+  @@map("project_members")
+}
+
+model Team {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String
+  description    String?
+  ownerId        String
+  organizationId String?
+  avatarUrl      String?
+  isPublic       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  owner          User          @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  members        TeamMember[]
+
+  @@unique([ownerId, slug])
+  @@index([ownerId])
+  @@index([organizationId])
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String     @id @default(cuid())
+  userId    String
+  teamId    String
+  role      TeamRole   @default(MEMBER)
+  joinedAt  DateTime   @default(now())
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team      Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+  @@index([userId])
+  @@index([teamId])
+  @@map("team_members")
+}
+
+// ============================================================
+// OPPORTUNITIES & APPLICATIONS
+// ============================================================
+
+model Opportunity {
+  id                String            @id @default(cuid())
+  organizationId    String?
+  title             String
+  description       String
+  type              OpportunityType
+  status            OpportunityStatus @default(DRAFT)
+  location          String?
+  isRemote          Boolean           @default(false)
+  experienceLevel   String?           // ENTRY, MID, SENIOR, LEAD
+  minReadinessScore Int?              @default(50)
+  isFeatured        Boolean           @default(false)
+  salaryMin         Int?
+  salaryMax         Int?
+  currency          String?           @default("USD")
+  applicationDeadline DateTime?
+  requirements      Json?
+  benefits          Json?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  deletedAt         DateTime?
+
+  organization      Organization?     @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  skills            OpportunitySkill[]
+  applications      Application[]
+
+  @@index([organizationId])
+  @@index([type])
+  @@index([status])
+  @@index([isRemote])
+  @@index([applicationDeadline])
+  @@map("opportunities")
+}
+
+model OpportunitySkill {
+  id            String     @id @default(cuid())
+  opportunityId String
+  skillId       String
+  isRequired    Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  skill         Skill       @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([opportunityId, skillId])
+  @@index([opportunityId])
+  @@index([skillId])
+  @@map("opportunity_skills")
+}
+
+model Application {
+  id              String            @id @default(cuid())
+  userId          String
+  opportunityId   String
+  status          ApplicationStatus @default(APPLIED)
+  matchScore      Int?              // Deterministic 0-100 match score
+  matchDetails    Json?             // Explainable match breakdown: skill match, readiness, blockers
+  coverLetter     String?
+  resumeId        String?
+  appliedAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  reviewedAt      DateTime?
+  reviewedBy      String?
+
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opportunity     Opportunity       @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  resume          Resume?           @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, opportunityId])
+  @@index([userId])
+  @@index([opportunityId])
+  @@index([status])
+  @@map("applications")
+}
+
+// ============================================================
+// RESUMES
+// ============================================================
+
+model Resume {
+  id              String         @id @default(cuid())
+  userId          String
+  originalFilename String
+  storageKey      String
+  fileType        ResumeFileType
+  fileSize        Int
+  status          ResumeStatus   @default(UPLOADED)
+  mimeType        String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  deletedAt       DateTime?
+
+  // Tenant scoping
+  organizationId  String?
+  organization    Organization?  @relation("OrganizationResumes", fields: [organizationId], references: [id], onDelete: SetNull)
+
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analysis        ResumeAnalysis?
+  applications    Application[]
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([status])
+  @@map("resumes")
+}
+
+model ResumeAnalysis {
+  id                String               @id @default(cuid())
+  resumeId          String               @unique
+  status            ResumeAnalysisStatus @default(PENDING)
+  model             String?
+  providerType      String?
+  inputTokens       Int?
+  outputTokens      Int?
+  latencyMs         Int?
+  errorMessage      String?
+  personalInfo      Json?
+  summary           String?
+  skills            Json?
+  experiences       Json?
+  education         Json?
+  projects          Json?
+  certifications    Json?
+  duplicateFlags    Json?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  completedAt       DateTime?
+
+  resume            Resume               @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@index([status])
+  @@map("resume_analyses")
+}
+
+// ============================================================
+// LEARNING
+// ============================================================
+
+model LearningResource {
+  id              String              @id @default(cuid())
+  title           String
+  description     String?
+  url             String
+  provider        String?
+  type            LearningResourceType
+  skillId         String
+  difficulty      ResourceDifficulty? @default(BEGINNER)
+  language        String?             @default("en")
+  durationMinutes Int?
+  rating          Float?
+  qualityScore    Float?
+  verifiedSource  Boolean             @default(false)
+  lastCheckedAt   DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
+
+  // Tenant scoping
+  organizationId  String?
+  organization    Organization?       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  skill           Skill               @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  learningPathItems LearningPathItem[]  @relation("PathItemResource")
+
+  @@index([skillId])
+  @@index([organizationId])
+  @@index([type])
+  @@index([difficulty])
+  @@index([verifiedSource])
+  @@map("learning_resources")
+}
+
+model LearningPlan {
+  id              String              @id @default(cuid())
+  userId          String
+  targetSkillId   String
+  status          LearningPlanStatus  @default(ACTIVE)
+  currentMilestone Int               @default(0)
+  completedAt     DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetSkill     Skill               @relation("LearningPlanTargetSkill", fields: [targetSkillId], references: [id], onDelete: Cascade)
+  milestones      LearningMilestone[]
+
+  @@index([userId])
+  @@index([targetSkillId])
+  @@index([status])
+  @@map("learning_plans")
+}
+
+model LearningMilestone {
+  id              String              @id @default(cuid())
+  planId          String
+  skillId         String
+  order           Int
+  targetProficiency ProficiencyLevel  @default(BEGINNER)
+  status          LearningPlanStatus  @default(ACTIVE)
+  completedAt     DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  plan            LearningPlan        @relation(fields: [planId], references: [id], onDelete: Cascade)
+  skill           Skill               @relation("LearningMilestoneSkill", fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, order])
+  @@index([planId])
+  @@index([skillId])
+  @@map("learning_milestones")
+}
+
+model LearningPath {
+  id              String             @id @default(cuid())
+  userId          String
+  targetRoleId    String
+  title           String
+  description     String?
+  status          LearningPathStatus @default(ACTIVE)
+  progress        Float              @default(0.0)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  completedAt     DateTime?
+
+  user            User               @relation("UserLearningPaths", fields: [userId], references: [id], onDelete: Cascade)
+  targetRole      TargetRole         @relation("RoleLearningPaths", fields: [targetRoleId], references: [id], onDelete: Cascade)
+  items           LearningPathItem[]
+
+  @@unique([userId, targetRoleId])
+  @@index([userId])
+  @@index([targetRoleId])
+  @@index([status])
+  @@map("learning_paths")
+}
+
+model LearningPathItem {
+  id                String                 @id @default(cuid())
+  learningPathId    String
+  skillId           String
+  resourceId        String?
+  title             String
+  objective         String
+  priority          String                 @default("HIGH")
+  order             Int
+  status            LearningPathItemStatus @default(AVAILABLE)
+  progress          Float                  @default(0.0)
+  estimatedMinutes  Int?                   @default(120)
+  explanation       Json?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  learningPath      LearningPath           @relation(fields: [learningPathId], references: [id], onDelete: Cascade)
+  skill             Skill                  @relation("PathItemSkill", fields: [skillId], references: [id], onDelete: Cascade)
+  resource          LearningResource?      @relation("PathItemResource", fields: [resourceId], references: [id], onDelete: SetNull)
+  assessments       Assessment[]           @relation("PathItemAssessments")
+
+  @@unique([learningPathId, skillId])
+  @@index([learningPathId])
+  @@index([skillId])
+  @@index([resourceId])
+  @@index([status])
+  @@map("learning_path_items")
+}
+
+// ============================================================
+// ASSESSMENTS (Phase 6)
+// ============================================================
+
+model Assessment {
+  id                  String           @id @default(cuid())
+  userId              String
+  skillId             String
+  learningPathItemId  String?
+  type                AssessmentType   @default(QUIZ)
+  status              AssessmentStatus @default(CREATED)
+  title               String
+  description         String?
+  timeLimit           Int?             // minutes
+  questions           Json             // server-generated questions
+  maxScore            Int              @default(100)
+  score               Int?
+  percentage          Float?
+  gradedAt            DateTime?
+  startedAt           DateTime?
+  submittedAt         DateTime?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  user                User             @relation("UserAssessments", fields: [userId], references: [id], onDelete: Cascade)
+  skill               Skill            @relation("SkillAssessments", fields: [skillId], references: [id], onDelete: Cascade)
+  learningPathItem    LearningPathItem? @relation("PathItemAssessments", fields: [learningPathItemId], references: [id], onDelete: SetNull)
+  attempts            AssessmentAttempt[]
+
+  @@unique([userId, skillId, type])
+  @@index([userId])
+  @@index([skillId])
+  @@index([status])
+  @@index([learningPathItemId])
+  @@map("assessments")
+}
+
+model AssessmentAttempt {
+  id              String     @id @default(cuid())
+  assessmentId    String
+  attemptNumber   Int        @default(1)
+  answers         Json       // user's submitted answers
+  score           Int        @default(0)
+  percentage      Float      @default(0.0)
+  feedback        Json?      // per-question feedback
+  submittedAt     DateTime   @default(now())
+  gradedAt        DateTime?
+  createdAt       DateTime   @default(now())
+
+  assessment      Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@unique([assessmentId, attemptNumber])
+  @@index([assessmentId])
+  @@map("assessment_attempts")
+}
+
+// ============================================================
+// TARGET ROLES & ROLE INTELLIGENCE
+// ============================================================
+
+model TargetRole {
+  id              String                 @id @default(cuid())
+  title           String
+  slug            String                 @unique
+  description     String?
+  category        SkillCategory          @default(PROGRAMMING)
+  iconUrl         String?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  deletedAt       DateTime?
+
+  skillRequirements RoleSkillRequirement[]
+  userProfiles      Profile[]
+  learningPaths     LearningPath[]         @relation("RoleLearningPaths")
+  simulations       CareerSimulation[]     @relation("RoleSimulations")
+  coachSessions     CareerCoachSession[]   @relation("RoleCoachSessions")
+
+  @@index([slug])
+  @@index([category])
+  @@map("target_roles")
+}
+
+model RoleSkillRequirement {
+  id                  String           @id @default(cuid())
+  targetRoleId        String
+  skillId             String
+  requiredProficiency ProficiencyLevel @default(INTERMEDIATE)
+  importanceWeight    Float            @default(1.0)
+  isRequired          Boolean          @default(true)
+  createdAt           DateTime         @default(now())
+
+  targetRole          TargetRole       @relation(fields: [targetRoleId], references: [id], onDelete: Cascade)
+  skill               Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([targetRoleId, skillId])
+  @@index([targetRoleId])
+  @@index([skillId])
+  @@map("role_skill_requirements")
+}
+
+// ============================================================
+// PHASE 8: CAREER READINESS & SIMULATION
+// ============================================================
+
+model CareerSimulation {
+  id              String           @id @default(cuid())
+  userId          String
+  targetRoleId    String
+  title           String
+  description     String?
+  scenarios       Json             // Array of scenario challenges / questions
+  status          SimulationStatus @default(CREATED)
+  timeLimit       Int?             // minutes
+  maxScore        Int              @default(100)
+  score           Int?
+  percentage      Float?
+  skillScores     Json?            // Record<string, number> - skillSlug -> percentage
+  decisionQuality Json?            // Detailed trade-off & decision analysis
+  readinessImpact Json?            // Before / after readiness impact
+  weakAreas       Json?            // Array of weak skill/domain areas
+  strongAreas     Json?            // Array of strong skill/domain areas
+  feedback        Json?            // Per-scenario breakdown & rationale
+  startedAt       DateTime?
+  submittedAt     DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  user            User             @relation("UserSimulations", fields: [userId], references: [id], onDelete: Cascade)
+  targetRole      TargetRole       @relation("RoleSimulations", fields: [targetRoleId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([targetRoleId])
+  @@index([status])
+  @@map("career_simulations")
+}
+
+// ============================================================
+// PHASE 9: AI CAREER COACH & NEXT-BEST-ACTION
+// ============================================================
+
+model CareerCoachSession {
+  id              String               @id @default(cuid())
+  userId          String
+  targetRoleId    String?
+  title           String               @default("Career Strategy Session")
+  status          String               @default("ACTIVE") // ACTIVE, ARCHIVED
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  user            User                 @relation("UserCoachSessions", fields: [userId], references: [id], onDelete: Cascade)
+  targetRole      TargetRole?          @relation("RoleCoachSessions", fields: [targetRoleId], references: [id], onDelete: SetNull)
+  messages        CareerCoachMessage[]
+
+  @@index([userId])
+  @@index([targetRoleId])
+  @@map("career_coach_sessions")
+}
+
+model CareerCoachMessage {
+  id              String             @id @default(cuid())
+  sessionId       String
+  sender          CoachSender        @default(USER)
+  content         String
+  structuredData  Json?              // Structured recommendation cards, next best action, etc.
+  createdAt       DateTime           @default(now())
+
+  session         CareerCoachSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@map("career_coach_messages")
+}
+
+// ============================================================
+// PHASE 10: ORGANIZATION & COLLEGE INTELLIGENCE
+// ============================================================
+
+model OrganizationInvitation {
+  id             String           @id @default(cuid())
+  organizationId String
+  email          String
+  role           OrgUserRole      @default(CANDIDATE)
+  token          String           @unique
+  status         InvitationStatus @default(PENDING)
+  invitedById    String?
+  acceptedAt     DateTime?
+  expiresAt      DateTime
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([email])
+  @@index([token])
+  @@index([status])
+  @@map("organization_invitations")
+}
+
+model OrganizationDepartment {
+  id             String             @id @default(cuid())
+  organizationId String
+  name           String
+  code           String
+  description    String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  programs       OrganizationProgram[]
+  members        UserOrganization[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@map("organization_departments")
+}
+
+model OrganizationProgram {
+  id             String                 @id @default(cuid())
+  organizationId String
+  departmentId   String?
+  name           String
+  code           String
+  degree         String?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+
+  organization   Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  department     OrganizationDepartment? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  cohorts        OrganizationCohort[]
+  members        UserOrganization[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@index([departmentId])
+  @@map("organization_programs")
+}
+
+model OrganizationCohort {
+  id             String              @id @default(cuid())
+  organizationId String
+  programId      String?
+  name           String              // e.g. "Class of 2026 - AI Batch A"
+  graduationYear Int?
+  startDate      DateTime?
+  endDate        DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  organization   Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  program        OrganizationProgram? @relation(fields: [programId], references: [id], onDelete: SetNull)
+  members        UserOrganization[]
+
+  @@index([organizationId])
+  @@index([programId])
+  @@map("organization_cohorts")
+}
+
+model OrganizationSettings {
+  id                     String       @id @default(cuid())
+  organizationId         String       @unique
+  allowedDomains         Json?        // string[] of allowed email domains
+  requireVerification    Boolean      @default(false)
+  allowStudentSelfEnroll Boolean      @default(true)
+  branding               Json?        // colors, logo, portal banner
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+
+  organization           Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("organization_settings")
+}
+
+// ============================================================
+// PHASE 12: ANALYTICS, AUDIT & PLATFORM OBSERVABILITY
+// ============================================================
+
+model AuditLog {
+  id             String        @id @default(cuid())
+  actorId        String?
+  organizationId String?
+  action         String
+  resourceType   String
+  resourceId     String?
+  metadata       Json?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime      @default(now())
+
+  actor          User?         @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([actorId])
+  @@index([organizationId])
+  @@index([action])
+  @@index([resourceType])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model AIRequestMetric {
+  id               String   @id @default(cuid())
+  provider         String
+  model            String
+  category         String
+  latencyMs        Int
+  status           String   // SUCCESS, FALLBACK, ERROR
+  tokensUsed       Int?
+  estimatedCostUsd Float?
+  error            String?
+  createdAt        DateTime @default(now())
+
+  @@index([provider])
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
+  @@map("ai_request_metrics")
+}
+
+// ============================================================
+// PHASE 13: INTEGRATIONS & EXTERNAL DATA INTELLIGENCE
+// ============================================================
+
+model IntegrationConnection {
+  id                String        @id @default(cuid())
+  userId            String?
+  organizationId    String?
+  provider          String        // GITHUB, LINKEDIN, GREENHOUSE, LEVER, CANVAS, CUSTOM
+  status            String        @default("CONNECTED")
+  externalAccountId String?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  user              User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization      Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([provider])
+  @@map("integration_connections")
+}
+
+model WebhookEvent {
+  id          String    @id @default(cuid())
+  provider    String
+  eventId     String
+  eventType   String
+  status      String    @default("RECEIVED") // RECEIVED, PROCESSED, FAILED
+  payloadHash String?
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@unique([provider, eventId])
+  @@index([provider])
+  @@index([status])
+  @@map("webhook_events")
+}
+
+// ============================================================
+// PHASE 15: BILLING, ENTITLEMENTS & PRODUCTION PLATFORM
+// ============================================================
+
+model Plan {
+  id           String   @id @default(cuid())
+  code         PlanCode @unique
+  name         String
+  description  String?
+  priceMonthly Int      @default(0) // cents or whole units
+  features     Json?    // Feature flags & descriptions
+  limits       Json?    // Enforced quotas: { maxResumes, maxProjects, maxSimulations, maxCoachMessages }
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("plans")
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  userId             String?
+  organizationId     String?
+  planCode           PlanCode           @default(FREE)
+  status             SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart DateTime           @default(now())
+  currentPeriodEnd   DateTime?
+  cancelAtPeriodEnd  Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user               User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization       Organization?      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+model UsageRecord {
+  id             String        @id @default(cuid())
+  userId         String?
+  organizationId String?
+  metric         String        // AI_COACH_MESSAGES, RESUME_ANALYSIS, PROJECT_EVALUATION, SIMULATION_TAKEN
+  count          Int           @default(1)
+  period         String        // YYYY-MM
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId, metric, period])
+  @@index([userId])
+  @@index([organizationId])
+  @@index([metric, period])
+  @@map("usage_records")
+}

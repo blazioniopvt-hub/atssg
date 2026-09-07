@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "savedAt": "2026-09-04T21:46:16.053Z",
+  "agents": [
+    {
+      "id": "god",
+      "name": "Michael",
+      "character": "michael",
+      "accent": "lemon",
+      "description": "god — runs the floor, triages requests, escalates only critical calls to you",
+      "project": "hive",
+      "tmuxTarget": "",
+      "cwd": "F:\\nemotron\\skillsync-master-main",
+      "status": "idle",
+      "action": "running the floor",
+      "progress": 0,
+      "currentStation": "desk",
+      "ptyId": "pty-god",
+      "command": "opencode --model local/llama3",
+      "provider": "opencode",
+      "model": "local/llama3",
+      "isGod": true
+    }
+  ],
+  "archived": [],
+  "restorable": [],
+  "queues": {
+    "god": [
+      {
+        "id": "q-1788558375547-3",
+        "text": "You have new hive inbox message(s) — at least: 2026-09-04T21-46-12-476Z-9bbf1a. Read your inbox, act on what is pending there, and move handled ones to inbox/.done/. Your inbox directory is authoritative: work everything still pending in it, and if a named id is already in inbox/.done/ you handled it on an earlier turn and can ignore that one. Act autonomously; only message god if you genuinely need a decision.",
+        "ts": 1788558375547,
+        "precondition": "inbox-nonempty"
+      }
+    ]
+  },
+  "selectedId": "god"
+}

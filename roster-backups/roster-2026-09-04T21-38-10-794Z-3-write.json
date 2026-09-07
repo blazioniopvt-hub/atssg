@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "savedAt": "2026-09-04T21:38:10.192Z",
+  "agents": [
+    {
+      "id": "god",
+      "name": "Michael",
+      "character": "michael",
+      "accent": "lemon",
+      "description": "god — runs the floor, triages requests, escalates only critical calls to you",
+      "project": "hive",
+      "tmuxTarget": "",
+      "cwd": "F:\\nemotron\\skillsync-master-main",
+      "status": "idle",
+      "action": "running the floor",
+      "progress": 0,
+      "currentStation": "desk",
+      "ptyId": "pty-god",
+      "command": "opencode --model local/llama3",
+      "provider": "opencode",
+      "model": "local/llama3",
+      "isGod": true
+    }
+  ],
+  "archived": [],
+  "restorable": [],
+  "queues": {
+    "god": [
+      {
+        "id": "q-1788557889685-1",
+        "text": "git status",
+        "ts": 1788557889685
+      }
+    ]
+  },
+  "selectedId": "god"
+}
